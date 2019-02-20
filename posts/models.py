@@ -40,7 +40,7 @@ class Post(models.Model):
 	content = models.BinaryField()
 	published = models.DateTimeField()
 	visibility = models.CharField(max_length=7, choices=VISIBILITY, default="PUBLIC")
-	unlisted = models.BooleanField()
+	unlisted = models.BooleanField(default=False)
 
 	# missing author, comments, and categories
 
