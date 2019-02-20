@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
-from .models import User
+from .models import User, Post
+import base64
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -47,4 +48,20 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         user.save()
         return user
 
+# handle binary content of post
+# not sure if this will work with all data types yet but works with strings
+class BinaryContent(serializers.Field):
+    def to_representation(self, value):
+        return base64.decodestring(value.content)
+
+    def to_internal_value(self, data):
+        return {"content" : base64.encodestring(data.encode())}
+
+class PostSerializer(serializers.HyperlinkedModelSerializer):
+    content = BinaryContent(source='*')
+
+    class Meta:
+        model = Post
+        fields = ('id', 'title', 'source', 'origin', 'description', 'contentType', 
+                'content', 'published', 'visibility', 'unlisted')
 
