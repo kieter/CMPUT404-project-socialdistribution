@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
-from .models import User
+from .models import User, Post, Comment
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -47,4 +47,46 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         user.save()
         return user
 
+class CommentSerializer(serializers.HyperlinkedModelSerializer):
 
+    # maybe also many=False
+    author = UserSerializer(read_only=True)
+
+    class Meta:
+        model = Comment
+        fields = ("author", "comment", "contentType", "published", "id")
+
+
+class PostSerializer(serializers.HyperlinkedModelSerializer):
+
+    comments = CommentSerializer(read_only=True, many=True)
+
+    class Meta:
+        model = Post
+        fields = ("id", "title", "source", "origin", "description", "contentType", "content", "published", "visibility", "unlisted", "comments")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# anchor

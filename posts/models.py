@@ -44,3 +44,52 @@ class Post(models.Model):
 
 	# missing author, comments, and categories
 
+class Comment(models.Model):
+
+    PLAIN = "text/plain"
+    CONTENTCHOICES = (
+        ("text/plain", "Plain"),
+        ("text/markdown", "Markdown")
+    )
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    parent_post = models.ForeignKey(Post, related_name='comments', on_delete=models.CASCADE)
+    author = models.ForeignKey(User, related_name='comments', on_delete=models.CASCADE)
+    # TODO: Check if max_len=400 is correct
+    comment = models.CharField(max_length=400)
+    contentType = models.CharField(max_length=18, choices=CONTENTCHOICES, default=PLAIN)
+    # ISO 8601 TIMESTAMP
+    published = models.DateTimeField()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# anchor
