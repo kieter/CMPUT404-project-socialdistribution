@@ -1,12 +1,13 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
-from .models import User, Post, Comment
+from .models import User, Post, Comment, Category
+import base64
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     firstName = serializers.CharField(source='first_name')
     lastName = serializers.CharField(source='last_name')
-    displayName = serializers.CharField(source='username', validators=[UniqueValidator(User.objects.all())])
+    displayName = serializers.CharField(source='username')
     password1 = serializers.CharField(write_only=True, required=False)
     password2 = serializers.CharField(write_only=True, required=False)
     github = serializers.URLField(allow_blank=True, required=False)
@@ -18,6 +19,8 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('id', 'displayName', 'github', 'firstName', 'lastName', 'bio', 'email', 'password1', 'password2')
 
     def validate(self, data):
+        print("-----------")
+        print(data)
         if self.context['create'] and ('password1' not in data.keys() or 'password2' not in data.keys()):
             raise serializers.ValidationError("Please enter a password")
         if self.context['create'] and (len(data['password1']) < 1 or len(data['password2']) < 1):
@@ -47,23 +50,57 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         user.save()
         return user
 
+# handle binary content of post
+# not sure if this will work with all data types yet but works with strings
+class BinaryContent(serializers.Field):
+    def to_representation(self, value):
+        return base64.decodestring(value.content)
+
+    def to_internal_value(self, data):
+        return {"content" : base64.encodestring(data.encode())}
+
+
 class CommentSerializer(serializers.HyperlinkedModelSerializer):
 
     # maybe also many=False
-    author = UserSerializer(read_only=True)
+    author = UserSerializer()
 
     class Meta:
         model = Comment
         fields = ("author", "comment", "contentType", "published", "id")
 
+    # def create(self, validated_data):
+    #     print(validated_data)
+        # user_data = validated_data.pop('author')
+        # post_data = validated_data.pop('post')
+
+
+
 
 class PostSerializer(serializers.HyperlinkedModelSerializer):
-
-    comments = CommentSerializer(read_only=True, many=True)
+    # # TODO: dont forget to re-add this, caused errors --> content = BinaryContent(source='*')
+    author = UserSerializer()
+    comments = CommentSerializer(many=True)
+    categories = serializers.SlugRelatedField(
+        many=True,
+        queryset=Category.objects.all(),
+        slug_field='category'
+    )
 
     class Meta:
         model = Post
-        fields = ("id", "title", "source", "origin", "description", "contentType", "content", "published", "visibility", "unlisted", "comments")
+        fields = ('id', 'title', 'source', 'origin', 'description', 'author', 'categories', 'contentType', 'content', 'published', 'visibility', 'unlisted', 'comments')
+
+    def create(self, validated_data):
+        user_data = validated_data.pop('author')
+        category_data = validated_data.pop('categories')
+        comment_data = validated_data.pop('comments')
+        user = User.objects.get(username=user_data['username'])
+        post = Post.objects.create(author=user, **validated_data)
+        return post
+
+
+
 
 
 
