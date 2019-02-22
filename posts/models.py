@@ -36,7 +36,7 @@ class Post(models.Model):
     visibility = models.CharField(max_length=7, choices=VISIBILITY, default="PUBLIC")
     unlisted = models.BooleanField(default=False)
 
-    # missing visibleTo
+    # # TODO: missing visibleTo
     author = models.ForeignKey(User, related_name='posts', on_delete=models.CASCADE)
 
 class Comment(models.Model):

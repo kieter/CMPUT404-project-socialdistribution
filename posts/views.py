@@ -1,8 +1,8 @@
 from rest_framework import views, status
 from rest_framework.response import Response
 from django.http import Http404
-from .models import User, Post
-from .serializers import UserSerializer, PostSerializer
+from .models import User, Post, Comment
+from .serializers import UserSerializer, PostSerializer, CommentSerializer
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 # Create your views here.
@@ -63,3 +63,40 @@ class PostViewID(views.APIView):
         post = self.get_post(pk)
         serializer = PostSerializer(post)
         return Response(serializer.data)
+
+
+class CommentViewList(views.APIView):
+
+    def post(self, request, post_id):
+        serializer = CommentSerializer(data=request.data, context={'create':True, 'post_id':post_id})
+        # print(serializer.initial_data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+        return Response(serializer.errors)
+
+    def get(self, request, post_id):
+        comments = Comment.objects.all()
+        serializer = CommentSerializer(comments, many=True)
+        return Response(serializer.data)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# anchor

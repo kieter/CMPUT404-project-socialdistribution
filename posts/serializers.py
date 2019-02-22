@@ -19,8 +19,6 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('id', 'displayName', 'github', 'firstName', 'lastName', 'bio', 'email', 'password1', 'password2')
 
     def validate(self, data):
-        print("-----------")
-        print(data)
         if self.context['create'] and ('password1' not in data.keys() or 'password2' not in data.keys()):
             raise serializers.ValidationError("Please enter a password")
         if self.context['create'] and (len(data['password1']) < 1 or len(data['password2']) < 1):
@@ -69,10 +67,14 @@ class CommentSerializer(serializers.HyperlinkedModelSerializer):
         model = Comment
         fields = ("author", "comment", "contentType", "published", "id")
 
-    # def create(self, validated_data):
-    #     print(validated_data)
-        # user_data = validated_data.pop('author')
-        # post_data = validated_data.pop('post')
+    def create(self, validated_data):
+        # print(validated_data)
+        user_data = validated_data.pop('author')
+        post_id = self.context['post_id']
+        post = Post.objects.get(pk=post_id)
+        user = User.objects.get(username=user_data['username'])
+        comment = Comment.objects.create(parent_post=post, author=user, **validated_data)
+        return comment
 
 
 
