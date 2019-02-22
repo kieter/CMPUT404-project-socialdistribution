@@ -1,8 +1,8 @@
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase, APIRequestFactory, force_authenticate
-from posts.views import UserView
-from posts.models import User
+from posts.views import UserView, PostView, CommentViewList
+from posts.models import User, Post, Comment
 
 
 class UserTests(APITestCase):
@@ -57,3 +57,37 @@ class UserTests(APITestCase):
         force_authenticate(request, user)
         response = view(request)
         self.assertEqual(response.data['firstName'], 'New First Name')
+
+
+# class PostTests(APITestCase):
+#
+#     def setUp(self):
+#         self.factory = APIRequestFactory()
+#
+#     def create_user(self):
+#         url = reverse('users')
+#         data = {'displayName': 'user1', 'firstName': 'James', 'lastName': 'Bond', 'password1': '1234', 'password2': '1234', 'email': 'test@test.com'}
+#         request = self.factory.post(url, data=data)
+#         view = UserView.as_view()
+#         response = view(request)
+#         user = User.objects.get(username='user1')
+#         return user
+#
+#     def test_create_post(self):
+#         user = self.create_user()
+#         url = reverse('posts')
+#         # data = {'displayName': 'test1', 'firstName': 'testFirstName', 'lastName': 'testLastName', 'password1': '1234', 'password2': '1234', 'email': 'test@test.com'}
+#         data = {
+#             'title':'A post title', 'source':'http://lastplaceigotthisfrom.com/posts/yyyyy',
+#             'origin':'http://whereitcamefrom.com/posts/zzzzz', 'description':'A post description',
+#             'contentType':'text/plain', 'content':'some content', 'author':user,
+#             'published':'2015-03-09T13:07:04+00:00', 'visibility':'PUBLIC', 'unlisted':False
+#         }
+#         request = self.factory.post(url, data=data, format='json')
+#         print(request.body)
+#         view = PostView.as_view()
+#         response = view(request)
+#         print(response)
+#
+#         # user = Post.objects.get(username='test1')
+#         # return user

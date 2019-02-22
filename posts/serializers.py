@@ -81,6 +81,7 @@ class CommentSerializer(serializers.HyperlinkedModelSerializer):
 
 class PostSerializer(serializers.HyperlinkedModelSerializer):
     # # TODO: dont forget to re-add this, caused errors --> content = BinaryContent(source='*')
+    # TODO: add next field to post (points to first page of comments)
     author = UserSerializer()
     comments = CommentSerializer(many=True)
     categories = serializers.SlugRelatedField(
